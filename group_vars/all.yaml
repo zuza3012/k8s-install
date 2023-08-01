@@ -1,1 +1,2 @@
-configure_firewall: true # set to false fo terraform (network security groups instead)
+configure_firewall: false # set to false fo terraform (network security groups instead)
+token: abcdef.0123456789abcdef

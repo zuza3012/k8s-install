@@ -11,7 +11,6 @@ resource "ansible_group" "all" {
   }
 }
 
-
 resource "ansible_group" "workers" {
   name     = "workers"
 }
@@ -27,6 +26,7 @@ resource "ansible_host" "masters" {
 
   variables = {
     ansible_host = openstack_compute_floatingip_associate_v2.masters_ips[count.index].floating_ip
+    private_ip = openstack_compute_instance_v2.masters[count.index].network[0].fixed_ip_v4
   }
 }
 
@@ -37,6 +37,7 @@ resource "ansible_host" "workers" {
 
   variables = {
     ansible_host = openstack_compute_floatingip_associate_v2.workers_ips[count.index].floating_ip
+    private_ip = openstack_compute_instance_v2.workers[count.index].network[0].fixed_ip_v4
   }
 }
 

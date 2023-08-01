@@ -38,6 +38,9 @@
   notify:
     - Restart containerd
 
+- name: Flush handlers
+  meta: flush_handlers
+
 - name: Start and enable containerd
   ansible.builtin.service:
     name: containerd
