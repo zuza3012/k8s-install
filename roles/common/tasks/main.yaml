@@ -1,0 +1,11 @@
+- name: Include containered tasks
+  ansible.builtin.import_tasks:
+    file: containerd.yaml
+
+- name: Include swap and kernel tasks
+  ansible.builtin.import_tasks:
+    file: pre.yaml
+
+- name: Include k8s common tasks
+  ansible.builtin.import_tasks:
+    file: k8s.yaml

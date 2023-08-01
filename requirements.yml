@@ -1,0 +1,6 @@
+# usage: ansible-galaxy collection install -r requirements.yml (global install)
+# eg.: installled in my $HOME/.ansible/tmp/ansible-local-38671lp82b3nu/tmp4aoh1p1s/community-general-6.4.0-bc7_1g3g
+
+collections:
+  - 'cloud.terraform'
+  - 'ansible.posix'

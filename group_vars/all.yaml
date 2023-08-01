@@ -1,0 +1,1 @@
+configure_firewall: true # set to false fo terraform (network security groups instead)

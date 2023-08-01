@@ -1,0 +1,26 @@
+- name: Install requirements for k8s installation
+  ansible.builtin.apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+    state: present
+
+- name: Add Kubernetes official GPG key
+  ansible.builtin.apt_key:
+    url: https://dl.k8s.io/apt/doc/apt-key.gpg
+    state: present
+
+
+- name: Add Kubernetes Repository
+  ansible.builtin.apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+
+- name: Install k8s packages
+  ansible.builtin.apt:
+    pkg: 
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present

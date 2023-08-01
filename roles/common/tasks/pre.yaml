@@ -1,0 +1,47 @@
+- name: Check if temporary swap is disabled
+  register: total_swap
+  ansible.builtin.shell: "cat /proc/meminfo | grep SwapTotal: | awk '{ print $2 }'"
+
+- name: Disable swap temporary
+  ansible.builtin.command: swapoff -a
+  when: total_swap.stdout | int != 0
+
+- name: Check if permanent swap is disabled
+  register: swap_fstab
+  shell: "cat /etc/fstab1  | grep swap | head -c 1"
+
+
+# selinux is disable on ubuntu
+# on centos it should be disabled first by
+# sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config (permenently)
+# and 
+# setenforce 0 (temporary)
+
+- name: Create k8s modules config
+  vars:
+    text: |
+      overlay
+      br_netfilter
+  ansible.builtin.copy:
+    content: "{{ text }}"
+    dest: /etc/modules-load.d/k8s.conf
+  register: k8s_kernel_modules
+
+
+- name: Add kernel modules
+  ansible.builtin.command: "modprobe {{ item }}"
+  when: k8s_kernel_modules.changed
+  loop:
+    - overlay
+    - br_netfilter
+
+- name: Create bridged traffic config
+  ansible.builtin.copy:
+    src: files/bridged.traffic.conf
+    dest: /etc/sysctl.d/k8s.conf
+  register: sysctl_k8s
+
+- name: Load kernel settings
+  ansible.builtin.command: sysctl -p --system
+  when: sysctl_k8s.changed
+

@@ -1,0 +1,3 @@
+# ansible-inventory -i inventory.yml --graph --vars
+plugin: cloud.terraform.terraform_provider
+project_path: ./terraform/

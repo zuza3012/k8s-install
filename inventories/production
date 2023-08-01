@@ -1,0 +1,6 @@
+[masters]
+berry1.local
+
+[workers]
+berry2.local
+berry3.local

@@ -1,0 +1,11 @@
+- hosts:  masters
+  gather_facts: false
+  roles:
+    - common
+    - master
+
+- hosts:  workers
+  gather_facts: false
+  roles:
+    - common
+    - worker
