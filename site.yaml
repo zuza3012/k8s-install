@@ -1,0 +1,13 @@
+- name: Apply configuration for masters
+  hosts: masters
+  gather_facts: true
+  roles:
+    - common
+    - master
+
+- name: Apply configuration for workers
+  hosts: workers
+  gather_facts: false
+  roles:
+    - common
+    - worker

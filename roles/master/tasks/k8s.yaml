@@ -1,0 +1,62 @@
+- name: Check if /etc/kubernetes/pki is empty before init
+  ansible.builtin.find:
+    paths: /etc/kubernetes/pki
+  register: files_found
+
+
+- name: Initialize k8s cluster
+  become: true
+  ansible.builtin.command:
+    cmd: >
+      kubeadm init --upload-certs --token
+      {{ token }} --kubernetes-version latest
+      --apiserver-advertise-address {{ hostvars[groups['masters'][0]].private_ip }}
+      --skip-certificate-key-print --skip-token-print
+  failed_when: init_output.rc != 0
+  register: init_output
+  when: files_found.matched == 0 and inventory_hostname == groups['masters'][0]
+  notify:
+    - Configure Calico
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Get join command
+  become: true
+  ansible.builtin.command: kubeadm token create --print-join-command
+  failed_when: join_command.rc != 0
+  register: join_command
+  when: inventory_hostname == groups['masters'][0]
+
+
+- name: Create a $HOME/.kube if it does not exist
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    mode: '0755'
+
+- name: Read admin.conf on first master node for copying to worker nodes
+  become: true
+  ansible.builtin.command: cat /etc/kubernetes/admin.conf
+  changed_when: false
+  register: admin_conf
+  when: inventory_hostname == groups['masters'][0]
+
+- name: Copy admin.conf for kubectl
+  become: true
+  ansible.builtin.copy:
+    remote_src: true
+    src: /etc/kubernetes/admin.conf
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0600'
+
+# zrobic z tego jandler???
+# - name: Configure Calico
+#   when: init_output.changed and inventory_hostname == groups['masters'][0]
+#   block:
+#     - name: Apply calico manifest
+#       ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
+#     - name: Set env for Calico
+#       ansible.builtin.command: "kubectl set env daemonset/calico-node -n kube-system IP_AUTODETECTION_METHOD=interface={{ ansible_facts.default_ipv4.alias }}"

@@ -110,6 +110,16 @@ resource "openstack_networking_secgroup_rule_v2" "master-controller-ingress" {
   remote_ip_prefix  = openstack_networking_subnet_v2.ktest.cidr
   security_group_id = openstack_networking_secgroup_v2.master.id
 }
+
+resource "openstack_networking_secgroup_rule_v2" "master-calico-ingress" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 179
+  port_range_max    = 179
+  remote_ip_prefix  = openstack_networking_subnet_v2.ktest.cidr
+  security_group_id = openstack_networking_secgroup_v2.master.id
+}
 ####################### end of master ingress #######################
 
 ####################### master egres #######################
@@ -134,6 +144,15 @@ resource "openstack_networking_secgroup_rule_v2" "master-kubelet-egress" {
   security_group_id = openstack_networking_secgroup_v2.master.id
 }
 
+resource "openstack_networking_secgroup_rule_v2" "master-calico-egress" {
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 179
+  port_range_max    = 179
+  remote_ip_prefix  = openstack_networking_subnet_v2.ktest.cidr
+  security_group_id = openstack_networking_secgroup_v2.master.id
+}
 ####################### end of master egres #######################
 # add open ports for workers
 resource "openstack_networking_secgroup_v2" "worker" {
@@ -174,6 +193,18 @@ resource "openstack_networking_secgroup_rule_v2" "worker-api-ingress" {
   security_group_id = openstack_networking_secgroup_v2.worker.id
 }
 
+
+resource "openstack_networking_secgroup_rule_v2" "worker-calico-ingress" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 179
+  port_range_max    = 179
+  remote_ip_prefix  = openstack_networking_subnet_v2.ktest.cidr
+  security_group_id = openstack_networking_secgroup_v2.worker.id
+}
+
+
 ####################### end of worker ingress #######################
 resource "openstack_networking_secgroup_rule_v2" "worker-kubelet-egress" {
   direction         = "egress"
@@ -194,6 +225,17 @@ resource "openstack_networking_secgroup_rule_v2" "worker-api-egress" {
   remote_ip_prefix  = openstack_networking_subnet_v2.ktest.cidr
   security_group_id = openstack_networking_secgroup_v2.worker.id
 }
+
+resource "openstack_networking_secgroup_rule_v2" "worker-calico-egress" {
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 179
+  port_range_max    = 179
+  remote_ip_prefix  = openstack_networking_subnet_v2.ktest.cidr
+  security_group_id = openstack_networking_secgroup_v2.worker.id
+}
+
 ####################### worker egress #######################
 
 ####################### end of worker egress #######################
