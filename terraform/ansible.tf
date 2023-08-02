@@ -4,7 +4,6 @@ resource "ansible_group" "all" {
   variables = {
     ansible_connection = "ssh"
     ansible_user = "ubuntu"
-    ansible_become = "yes"
     ansible_ssh_pipelining = "yes"
 		ansible_ssh_private_key_file =  "~/.ssh/${var.key_pair}"
     network_cidr = openstack_networking_subnet_v2.ktest.cidr

@@ -1,8 +1,9 @@
-- hosts:  masters
-  gather_facts: false
+- hosts: masters
+  gather_facts: true
   roles:
     - common
     - master
+
 
 - hosts:  workers
   gather_facts: false

@@ -1,12 +1,6 @@
-- name: Debug master
-  ansible.builtin.debug:
-    msg: 'Hahahaha master'
-
-# check if kubeadm init was run
-
 - name: Include init k8s tasks
   ansible.builtin.import_tasks:
-    file: init.yaml
+    file: k8s.yaml
 
 # configure firewall for raspberry pi
 

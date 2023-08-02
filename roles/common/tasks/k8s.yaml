@@ -1,4 +1,5 @@
 - name: Install requirements for k8s installation
+  become: true
   ansible.builtin.apt:
     pkg:
       - apt-transport-https
@@ -7,17 +8,20 @@
     state: present
 
 - name: Add Kubernetes official GPG key
+  become: true
   ansible.builtin.apt_key:
     url: https://dl.k8s.io/apt/doc/apt-key.gpg
     state: present
 
 
 - name: Add Kubernetes Repository
+  become: true
   ansible.builtin.apt_repository:
     repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
     state: present
 
 - name: Install k8s packages
+  become: true
   ansible.builtin.apt:
     pkg: 
       - kubelet
@@ -25,8 +29,8 @@
       - kubectl
     state: present
 
-# - name: Enable kubelet
-#   ansible.builtin.service:
-#     name: kubelet
-#     enabled: true
-#     state: started
+- name: Add kubectl alias
+  ansible.builtin.lineinfile:
+    path: "/home/{{ ansible_user }}/.bashrc"
+    line: alias 'k'='kubectl'
+    create: true

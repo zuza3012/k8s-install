@@ -1,0 +1,35 @@
+- name: Create a $HOME/.kube if it does not exist
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    mode: '0755'
+
+- name: Copy admin.conf for kubectl
+  become: true
+  ansible.builtin.copy:
+    remote_src: true
+    content: "{{ hostvars[groups['masters'][0]].admin_conf.stdout }}"
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    owner: "{{ ansible_user }}"
+    group:  "{{ ansible_user }}"
+    mode: '0600'
+
+- name: Check if /etc/kubernetes/pki is empty before join
+  ansible.builtin.find:
+    paths: /etc/kubernetes/pki
+  register: join_cluster
+
+- name: Join worker to cluster
+  become: true
+  ansible.builtin.command: "{{ hostvars[groups['masters'][0]].join_command.stdout }}"
+  when: join_cluster.matched == 0
+
+- name: Check labels
+  ansible.builtin.shell: kubectl get nodes | grep worker | head -1 |  awk '{ print $3; }'
+  register: worker_label
+
+- name: Label worker nodes
+  ansible.builtin.command: kubectl label node {{ item }} node-role.kubernetes.io/worker=worker
+  loop: "{{ groups['workers'] }}"
+  run_once: true
+  when: worker_label.stdout != "worker"
