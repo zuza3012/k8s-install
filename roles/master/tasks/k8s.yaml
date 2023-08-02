@@ -6,11 +6,20 @@
 
 - name: Initialize k8s cluster
   become: true
-  ansible.builtin.command: kubeadm init --upload-certs --token {{ token }} --kubernetes-version latest --apiserver-advertise-address {{ hostvars[groups['masters'][0]].private_ip }} --skip-certificate-key-print --skip-token-print
+  ansible.builtin.command:
+    cmd: >
+      kubeadm init --upload-certs --token
+      {{ token }} --kubernetes-version latest
+      --apiserver-advertise-address {{ hostvars[groups['masters'][0]].private_ip }}
+      --skip-certificate-key-print --skip-token-print
   failed_when: init_output.rc != 0
   register: init_output
   when: files_found.matched == 0 and inventory_hostname == groups['masters'][0]
+  notify:
+    - Configure Calico
 
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Get join command
   become: true
@@ -43,11 +52,11 @@
     group: "{{ ansible_user }}"
     mode: '0600'
 
-
-- name: Configure Calico
-  when: init_output.changed and inventory_hostname == groups['masters'][0]
-  block:
-    - name:  Apply calico manifest
-      ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
-    - name: Set env for Calico
-      ansible.builtin.command: "kubectl set env daemonset/calico-node -n kube-system IP_AUTODETECTION_METHOD=interface={{ ansible_facts.default_ipv4.alias }}"
+# zrobic z tego jandler???
+# - name: Configure Calico
+#   when: init_output.changed and inventory_hostname == groups['masters'][0]
+#   block:
+#     - name: Apply calico manifest
+#       ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
+#     - name: Set env for Calico
+#       ansible.builtin.command: "kubectl set env daemonset/calico-node -n kube-system IP_AUTODETECTION_METHOD=interface={{ ansible_facts.default_ipv4.alias }}"

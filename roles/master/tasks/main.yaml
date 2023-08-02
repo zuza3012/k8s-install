@@ -1,22 +1,3 @@
 - name: Include init k8s tasks
   ansible.builtin.import_tasks:
     file: k8s.yaml
-
-# configure firewall for raspberry pi
-
-# - name: Open ports for control plane
-#   community.general.ufw:
-#     rule: allow
-#     port: '{{ item }}'
-#     src: '{{ network_cidr }}' # taken from dynamic inventory, see terraform/ansible.tf
-#     state: enabled
-#   loop:
-#     - 22 # for debiggung and ansible
-#     - 6443
-#     - 10250
-#     - 2379
-#     - 2380
-#     - 10257
-#     - 10259
-#   when: configure_firewall
-

@@ -23,7 +23,7 @@
 - name: Install k8s packages
   become: true
   ansible.builtin.apt:
-    pkg: 
+    pkg:
       - kubelet
       - kubeadm
       - kubectl
@@ -33,4 +33,5 @@
   ansible.builtin.lineinfile:
     path: "/home/{{ ansible_user }}/.bashrc"
     line: alias 'k'='kubectl'
+    mode: '0644'
     create: true
