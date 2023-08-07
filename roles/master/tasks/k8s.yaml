@@ -38,16 +38,3 @@
   changed_when: false
   register: admin_conf
   when: inventory_hostname == groups['masters'][0]
-
-
-####
-
-
-# zrobic z tego jandler???
-# - name: Configure Calico
-#   when: init_output.changed and inventory_hostname == groups['masters'][0]
-#   block:
-#     - name: Apply calico manifest
-#       ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
-#     - name: Set env for Calico
-#       ansible.builtin.command: "kubectl set env daemonset/calico-node -n kube-system IP_AUTODETECTION_METHOD=interface={{ ansible_facts.default_ipv4.alias }}"
