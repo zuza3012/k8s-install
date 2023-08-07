@@ -3,7 +3,6 @@
     paths: /etc/kubernetes/pki
   register: files_found
 
-
 - name: Initialize k8s cluster
   become: true
   ansible.builtin.command:
@@ -16,7 +15,11 @@
   register: init_output
   when: files_found.matched == 0 and inventory_hostname == groups['masters'][0]
   notify:
-    - Configure Calico
+    - Create a $HOME/.kube if it does not exist
+    - Copy admin.conf for kubectl
+    - Apply calico manifest
+    - Set env for Calico
+
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
@@ -29,12 +32,6 @@
   when: inventory_hostname == groups['masters'][0]
 
 
-- name: Create a $HOME/.kube if it does not exist
-  ansible.builtin.file:
-    path: "/home/{{ ansible_user }}/.kube"
-    state: directory
-    mode: '0755'
-
 - name: Read admin.conf on first master node for copying to worker nodes
   become: true
   ansible.builtin.command: cat /etc/kubernetes/admin.conf
@@ -42,15 +39,9 @@
   register: admin_conf
   when: inventory_hostname == groups['masters'][0]
 
-- name: Copy admin.conf for kubectl
-  become: true
-  ansible.builtin.copy:
-    remote_src: true
-    src: /etc/kubernetes/admin.conf
-    dest: "/home/{{ ansible_user }}/.kube/config"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0600'
+
+####
+
 
 # zrobic z tego jandler???
 # - name: Configure Calico

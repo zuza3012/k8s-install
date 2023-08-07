@@ -1,0 +1,21 @@
+# handler are executed in order when they were defined here not notified
+- name: Create a $HOME/.kube if it does not exist
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    mode: '0755'
+
+- name: Copy admin.conf for kubectl
+  become: true
+  ansible.builtin.copy:
+    remote_src: true
+    src: /etc/kubernetes/admin.conf
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0600'
+
+- name: Apply calico manifest
+  ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
+- name: Set env for Calico
+  ansible.builtin.command: "kubectl set env daemonset/calico-node -n kube-system IP_AUTODETECTION_METHOD=interface={{ ansible_facts.default_ipv4.alias }}"

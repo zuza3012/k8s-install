@@ -1,6 +1,0 @@
-- name: Configure Calico
-  block:
-    - name: Apply calico manifest
-      ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
-    - name: Set env for Calico
-      ansible.builtin.command: "kubectl set env daemonset/calico-node -n kube-system IP_AUTODETECTION_METHOD=interface={{ ansible_facts.default_ipv4.alias }}"
