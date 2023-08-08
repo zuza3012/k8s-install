@@ -36,6 +36,12 @@ resource "openstack_networking_floatingip_v2" "master" {
   description = "ktest"
 }
 
+
+# float ips for master for debugging only
+resource "openstack_networking_floatingip_v2" "connect" {
+  pool = data.openstack_networking_network_v2.ext_network.name
+  description = "ktest"
+}
 # security group for SSH connection with outside world (for debugging)
 # change it in the future!
 

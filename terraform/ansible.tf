@@ -1,6 +1,6 @@
 resource "ansible_group" "all" {
   name     = "all"
-  children = [ansible_group.workers.name, ansible_group.masters.name]
+  children = [ansible_group.workers.name, ansible_group.masters.name, ansible_group.connect.name]
   variables = {
     ansible_connection = "ssh"
     ansible_user = "ubuntu"
@@ -10,12 +10,26 @@ resource "ansible_group" "all" {
   }
 }
 
+resource "ansible_group" "connect" {
+  name     = "connect"
+}
+
 resource "ansible_group" "workers" {
   name     = "workers"
 }
 
 resource "ansible_group" "masters" {
   name     = "masters"
+}
+
+resource "ansible_host" "connect" {
+  name   = openstack_compute_instance_v2.connect.name
+  groups = [ansible_group.connect.name]
+
+  variables = {
+    ansible_host = openstack_compute_floatingip_associate_v2.connect_ip.floating_ip
+    private_ip = openstack_compute_instance_v2.connect.network[0].fixed_ip_v4
+  }
 }
 
 resource "ansible_host" "masters" {

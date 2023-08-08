@@ -2,6 +2,7 @@
   hosts: masters
   gather_facts: true
   roles:
+    - ssh
     - common
     - master
 
@@ -9,5 +10,13 @@
   hosts: workers
   gather_facts: false
   roles:
+    - ssh
     - common
     - worker
+
+- name: Apply configuration for connect
+  hosts: connect
+  gather_facts: false
+  roles:
+    - ssh
+    - k8s_install

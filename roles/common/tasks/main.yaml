@@ -8,4 +8,4 @@
 
 - name: Include k8s common tasks
   ansible.builtin.import_tasks:
-    file: k8s.yaml
+    file: "../k8s_install/tasks/main.yaml"

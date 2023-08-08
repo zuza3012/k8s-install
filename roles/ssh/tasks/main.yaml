@@ -1,0 +1,17 @@
+# increase ssh limeout to 1h
+- name: Increase ssh timeout
+  become: true
+  block:
+    - name: set ClientAliveInterval
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#ClientAliveInterval'
+        line: 'ClientAliveInterval 600'
+
+    - name: set ClientAliveInterval
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#ClientAliveCountMax'
+        line: 'ClientAliveCountMax 6'
+  notify:
+    - Restart ssh
