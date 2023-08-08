@@ -15,7 +15,6 @@
   register: init_output
   when: files_found.matched == 0 and inventory_hostname == groups['masters'][0]
   notify:
-    - Create a $HOME/.kube if it does not exist
     - Copy admin.conf for kubectl
     - Apply calico manifest
     - Set env for Calico

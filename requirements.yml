@@ -4,3 +4,4 @@
 collections:
   - 'cloud.terraform'
   - 'ansible.posix'
+  - 'community.crypto'

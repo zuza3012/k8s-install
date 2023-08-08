@@ -1,0 +1,7 @@
+- name: Generate an OpenSSL Certificate with the CSR provided inline
+  community.crypto.x509_certificate_pipe:
+    provider: ownca
+    csr_content: "{{ hostvars[groups['connect'][0]].csr }}"
+    ownca_cert: /etc/kubernetes/pki/ca.crt
+    ownca_privatekey: /etc/kubernetes/pki/ca.key
+  register: result

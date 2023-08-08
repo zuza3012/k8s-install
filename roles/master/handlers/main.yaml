@@ -1,10 +1,4 @@
 # handler are executed in order when they were defined here not notified
-- name: Create a $HOME/.kube if it does not exist
-  ansible.builtin.file:
-    path: "/home/{{ ansible_user }}/.kube"
-    state: directory
-    mode: '0755'
-
 - name: Copy admin.conf for kubectl
   become: true
   ansible.builtin.copy:

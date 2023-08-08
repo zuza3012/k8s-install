@@ -1,0 +1,17 @@
+- name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
+  community.crypto.openssl_privatekey_pipe:
+  register: private_key
+  no_log: true
+
+- name: Store private_key
+  ansible.builtin.copy:
+    dest: "/home/{{ ansible_user }}/.kube/{{ ansible_user }}-k8s.key"
+    content: "{{ private_key.privatekey }}"
+
+- name: Generate an OpenSSL Certificate Signing Request with an inline CSR
+  community.crypto.openssl_csr_pipe:
+    privatekey_content: "{{ private_key.privatekey }}"
+    common_name: "{{ ansible_user }}"
+    organization_name: "{{ organization_name }}"
+  register: csr
+

@@ -1,3 +1,7 @@
 - name: Include init k8s tasks
   ansible.builtin.import_tasks:
     file: k8s.yaml
+
+- name: Include certificate tasks
+  ansible.builtin.import_tasks:
+    file: certificate.yaml
