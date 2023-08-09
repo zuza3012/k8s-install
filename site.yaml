@@ -1,10 +1,11 @@
-- name: Apply configuration for connect
+- name: Apply basic configuration for connect node
   hosts: connect
   gather_facts: false
   roles:
     - ssh
     - k8s_install
-    - connect
+  tasks:
+    - ansible.builtin.include: roles/connect/tasks/setup_certificate.yaml
 
 
 - name: Apply configuration for masters
@@ -22,4 +23,11 @@
     - ssh
     - common
     - worker
+
+- name: Apply configuration for connect kubeconfig
+  hosts: connect
+  gather_facts: true
+  tasks:
+    - ansible.builtin.include: roles/connect/tasks/kubeconfig.yaml
+
 

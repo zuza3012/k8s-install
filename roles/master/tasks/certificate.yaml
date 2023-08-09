@@ -1,7 +1,16 @@
-- name: Generate an OpenSSL Certificate with the CSR provided inline
+- name: Generate an OpenSSL Certificate for user
+  become: true
   community.crypto.x509_certificate_pipe:
     provider: ownca
-    csr_content: "{{ hostvars[groups['connect'][0]].csr }}"
-    ownca_cert: /etc/kubernetes/pki/ca.crt
-    ownca_privatekey: /etc/kubernetes/pki/ca.key
-  register: result
+    csr_content: "{{ hostvars[groups['connect'][0]].csr_result.csr }}"
+    ownca_path: /etc/kubernetes/pki/ca.crt
+    ownca_privatekey_path: /etc/kubernetes/pki/ca.key
+  register: crt_result
+  when: not hostvars[groups['connect'][0]].stat_result.stat.exists
+
+- name: Read ca.crt file for connect nodes
+  become: true
+  ansible.builtin.command: cat /etc/kubernetes/pki/ca.crt
+  changed_when: false
+  register: ca_file
+  when: inventory_hostname == groups['masters'][0]
