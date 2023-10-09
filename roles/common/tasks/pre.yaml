@@ -15,13 +15,23 @@
 
 ######## to be fixed risky shell pipe
 
-- name: Check if permanent swap is disabled
-  register: swap_fstab
-  ansible.builtin.shell: cat /etc/fstab | grep swap | head -c 1
-  args:
-    executable: /bin/bash
-  changed_when: false
+# - name: Check if permanent swap is disabled
+#   register: swap_fstab
+#   ansible.builtin.shell: cat /etc/fstab | grep swap | head -c 1
+#   args:
+#     executable: /bin/bash
+#   changed_when: false
 
+- name: Stop and disable swap permanently
+  become: true
+  ansible.builtin.service:
+    name: dphys-swapfile
+    state: stopped
+    enabled: false
+
+### raspberry pi version:
+#sudo systemctl stop 
+#sudo systemctl disable dphys-swapfile
 ##########
 
 - name: Create k8s modules config
@@ -57,3 +67,9 @@
   become: true
   ansible.builtin.command: sysctl -p --system
   when: sysctl_k8s.changed
+
+
+# add
+#  cgroup_enable=cpuset cgroup_enable=memory
+# to end of file /boot/cmdline.txt
+# end reboot machine

@@ -7,23 +7,43 @@
       - gnupg
     state: present
 
-- name: Add Docker's official GPG key
+- name: Create /etc/apt/keyrings directory
   become: true
-  ansible.builtin.apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Add signing key for Docker
+  become: true
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/raspbian/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+    force: true
+
+# sudo install -m 0755 -d /etc/apt/keyrings
+
+# - name: Add Docker's official GPG key
+#   become: true
+#   ansible.builtin.apt_key:
+#     url: https://download.docker.com/linux/raspbian/gpg # https://download.docker.com/linux/ubuntu/gpg
+#     state: present
 
 - name: Add Docker Repository
   become: true
-  ansible.builtin.apt_repository:
-    repo: deb https://download.docker.com/linux/ubuntu jammy stable
+  ansible.builtin.apt_repository: # 
+    repo: deb [arch=armhf signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/raspbian bullseye stable # deb https://download.docker.com/linux/ubuntu jammy stable
     state: present
+    update_cache: yes
 
-- name: Install requirements for containerd installation
+- name: Install containerd
   become: true
   ansible.builtin.apt:
     name: containerd.io
     state: present
+
+#- meta: end_play
 
 - name: Create continerd.conf
   become: true
@@ -33,6 +53,7 @@
       overlay
       br_netfilter
     mode: '0644'
+
 
 - name: Start and enable containerd
   become: true

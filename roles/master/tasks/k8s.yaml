@@ -9,7 +9,7 @@
     cmd: >
       kubeadm init --upload-certs --token
       {{ token }} --kubernetes-version latest
-      --apiserver-advertise-address {{ hostvars[groups['masters'][0]].private_ip }}
+      --apiserver-advertise-address {{ hostvars[groups['masters'][0]]['ansible_default_ipv4']['address'] }}
       --skip-certificate-key-print --skip-token-print
   failed_when: init_output.rc != 0
   register: init_output
