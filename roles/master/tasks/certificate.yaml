@@ -1,3 +1,8 @@
+- name: Install cryptography python package for certificate
+  become: true
+  ansible.builtin.pip:
+    name: cryptography
+
 - name: Generate an OpenSSL Certificate for user
   become: true
   community.crypto.x509_certificate_pipe:

@@ -35,7 +35,7 @@
   ansible.builtin.apt_repository: # 
     repo: deb [arch=armhf signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/raspbian bullseye stable # deb https://download.docker.com/linux/ubuntu jammy stable
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Install containerd
   become: true

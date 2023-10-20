@@ -1,0 +1,30 @@
+todo
+TASK [worker : Check if /etc/kubernetes/pki is empty before join] *************************************************************
+[WARNING]: Skipped '/etc/kubernetes/pki' path due to this access issue: '/etc/kubernetes/pki' is not a directory
+
+
+
+install ufw
+add roule to ssh and 6443 port
+sudo ufw allow 6443/tcp ...
+enable ufw
+suf reload jak potrzeba
+
+tcp:
+6443
+2379
+2380
+10250
+10259
+10257
+179
+
+pomiedzy np berry 3 a berry1:
+
+traceroute -i wlan0 berry1 
+dziala
+ale traceroute berry1 
+nie :(
+
+
+ping nie dzila tez 
