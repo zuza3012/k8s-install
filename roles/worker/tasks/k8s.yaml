@@ -19,16 +19,24 @@
   when: join_cluster.matched == 0
 
 - name: Check labels
+  tags: test
   ansible.builtin.shell: |
     set -o pipefail
-    kubectl get nodes | grep worker | head -1 |  awk '{ print $3; }'
+    kubectl get nodes | awk {'print $1"\t"$3'}
   args:
     executable: /bin/bash
-  register: worker_label
+  register: get_nodes
   changed_when: false
 
-- name: Label worker nodes
+- name: Label nodes if needed
+  tags: test
+  vars: 
+    names: "{{ get_nodes.stdout_lines[1:] | map('split', '\t') | map('first') }}"
+    roles: "{{ get_nodes.stdout_lines[1:] | map('split', '\t') | map('last') }}"
+    label_dict: "{{ dict(names | zip(roles)) }}"
   ansible.builtin.command: kubectl label node {{ item }} node-role.kubernetes.io/worker=worker
-  loop: "{{ groups['workers'] }}"
   run_once: true
-  when: worker_label.stdout != "worker"
+  when: "{{ label_dict[item] != 'worker' }}"
+  with_items:
+    - "{{ groups['workers'] | map('split','.') | map('first') }}"
+  

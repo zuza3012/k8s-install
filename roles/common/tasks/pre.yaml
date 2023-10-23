@@ -75,13 +75,11 @@
   when: sysctl_k8s.changed
 #### needed for raspberrypi
 - name: Read /boot/cmdline.txt
-  tags: test
   ansible.builtin.slurp:
     src: /boot/cmdline.txt
   register: cmdline
 
 - name: Set fact for /boot/cmdline.txt
-  tags: test
   vars:
     cmdl: "{{ cmdline['content'] | b64decode | split }}"
   ansible.builtin.set_fact:
@@ -93,7 +91,6 @@
 
 - name: Update /boot/cmdline.txt
   become: true
-  tags: test
   vars:
     file_content: "{{ cmdline['content'] | b64decode | trim }}" 
   ansible.builtin.copy:

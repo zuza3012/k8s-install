@@ -8,8 +8,8 @@ ansible_python_interpreter="/usr/bin/python3"
 berry3.local
 
 [workers]
-berry1.local
-berry2.local
+berry1.local a=9
+berry2.local a=90
 
 [connect]
-connect.lan
+connect.lan 
