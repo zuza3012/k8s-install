@@ -27,6 +27,8 @@
 #   args:
 #     executable: /bin/bash
 #   changed_when: false
+# TODO check if swap is permanatly disabled on ubuntu 
+# sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /home/ubuntu/fstab1
 
 - name: Stop and disable swap permanently
   become: true
@@ -34,11 +36,8 @@
     name: dphys-swapfile
     state: stopped
     enabled: false
+  when: rpi
 
-### raspberry pi version:
-#sudo systemctl stop 
-#sudo systemctl disable dphys-swapfile
-##########
 
 - name: Create k8s modules config
   become: true
@@ -73,32 +72,40 @@
   become: true
   ansible.builtin.command: sysctl -p --system
   when: sysctl_k8s.changed
+
 #### needed for raspberrypi
 - name: Read /boot/cmdline.txt
+  tags: test
   ansible.builtin.slurp:
     src: /boot/cmdline.txt
   register: cmdline
+  when: rpi
 
-- name: Set fact for /boot/cmdline.txt
-  vars:
-    cmdl: "{{ cmdline['content'] | b64decode | split }}"
-  ansible.builtin.set_fact:
-    append: "{{ append | default([]) + [item] }}" 
-  when: cmdl is not contains(item)
-  loop:
-    - cgroup_enable=memory
-    - cgroup_enable=cpuset
 
-- name: Update /boot/cmdline.txt
-  become: true
-  vars:
-    file_content: "{{ cmdline['content'] | b64decode | trim }}" 
-  ansible.builtin.copy:
-    content: "{{ file_content }} {{ append | join(' ') }}\n"
-    dest: /boot/cmdline.txt
-  when: append is defined
-  notify:
-    - Reboot machine
+- name: Fact for /boot/cmdline.txt
+  block:
+    - name: Set fact for /boot/cmdline.txt rpi
+      vars:
+        cmdl: "{{ cmdline['content'] | b64decode | split }}"
+      ansible.builtin.set_fact:
+        append: "{{ append | default([]) + [item] }}" 
+      when: cmdl is not contains(item)
+      loop:
+        - cgroup_enable=memory
+        - cgroup_enable=cpuset
+        
+    - name: Update /boot/cmdline.txt
+      become: true
+      vars:
+        file_content: "{{ cmdline['content'] | b64decode | trim }}" 
+      ansible.builtin.copy:
+        content: "{{ file_content }} {{ append | join(' ') }}\n"
+        dest: /boot/cmdline.txt
+      when: append is defined and rpi
+      notify:
+        - Reboot machine
+  when: rpi
+
 
 
 - name: Flush handlers
