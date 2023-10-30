@@ -5,11 +5,14 @@ ansible_user=pi
 ansible_ssh_private_key_file=~/.ssh/rsa_pi
 ansible_python_interpreter="/usr/bin/python3"
 [masters]
-berry3.local
+berry3.local ansible_host=192.168.0.253
 
 [workers]
-berry1.local
-berry2.local
+berry1.local ansible_host=192.168.0.251
+berry2.local ansible_host=192.168.0.252
 
 [connect]
-connect.lan 
+# connect.lan 
+#connect ansible_host=3.249.43.30 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/aws-example1
+connect ansible_host=62.3.171.42 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/openstack_poznan
+

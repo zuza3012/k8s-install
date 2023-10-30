@@ -20,7 +20,7 @@
 - name: Generate an OpenSSL Certificate Signing Request with an inline CSR
   community.crypto.openssl_csr_pipe:
     privatekey_content: "{{ private_key.privatekey }}"
-    common_name: "{{ ansible_user }}"
-    organization_name: "{{ organization_name }}"
+    common_name: "{{ common_name }}"
+    organization_name: "{{ org_name }}"
   register: csr_result
   when: not stat_result.stat.exists

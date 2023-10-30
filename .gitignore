@@ -4,3 +4,5 @@ terraform/.terraform/*
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 nody
+terraform/openstack-connect/.terraform/*
+terraform/aws-connect/.terraform/*

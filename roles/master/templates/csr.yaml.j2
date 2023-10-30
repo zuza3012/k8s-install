@@ -1,0 +1,11 @@
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  name: {{ common_name }}
+spec:
+  groups:
+  - {{ org_name }}
+  request: {{ hostvars[groups['connect'][0]].csr_result.csr | b64encode | trim }}
+  signerName: kubernetes.io/kube-apiserver-client
+  usages:
+  - client auth
