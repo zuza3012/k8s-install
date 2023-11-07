@@ -14,5 +14,5 @@ berry2.local ansible_host=192.168.0.252
 [connect]
 # connect.lan 
 #connect ansible_host=3.249.43.30 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/aws-example1
-connect ansible_host=62.3.171.42 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/openstack_poznan
+connect ansible_host=62.3.170.137 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/openstack_poznan
 

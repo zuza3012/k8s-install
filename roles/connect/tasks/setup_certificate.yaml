@@ -1,26 +1,24 @@
-- name: Check that the kube config exists
-  stat:
-    path: "/home/{{ ansible_user }}/.kube/config"
-  register: stat_result
-
+- name: Check is csr file exists
+  ansible.builtin.stat:
+    path: "/home/{{ ansible_user }}/.kube/client.csr"
+  register: csr
 
 - name: Generate an OpenSSL private key
-  community.crypto.openssl_privatekey_pipe:
-      size: 2048
-  register: private_key
-  no_log: true
-  when: not stat_result.stat.exists
+  community.crypto.openssl_privatekey:
+    path: "/home/{{ ansible_user }}/.kube/client.key"
 
-- name: Store private_key
-  ansible.builtin.copy:
-    dest: "/home/{{ ansible_user }}/.kube/{{ ansible_user }}-k8s.key"
-    content: "{{ private_key.privatekey }}"
-  when: not stat_result.stat.exists
 
-- name: Generate an OpenSSL Certificate Signing Request with an inline CSR
-  community.crypto.openssl_csr_pipe:
-    privatekey_content: "{{ private_key.privatekey }}"
-    common_name: "{{ common_name }}"
-    organization_name: "{{ org_name }}"
-  register: csr_result
-  when: not stat_result.stat.exists
+- name: Generate csr
+  when: not csr.stat.exists
+  block:
+  - name: Generate an OpenSSL Certificate Signing Request
+    community.crypto.openssl_csr:
+      path: "/home/{{ ansible_user }}/.kube/client.csr"
+      privatekey_path: "/home/{{ ansible_user }}/.kube/client.key"
+      common_name: "{{ common_name }}"
+      organization_name: "{{ org_name }}"
+  - name: Read csr file into memory
+    become: true
+    ansible.builtin.command: cat "/home/{{ ansible_user }}/.kube/client.csr"
+    changed_when: false
+    register: client_csr

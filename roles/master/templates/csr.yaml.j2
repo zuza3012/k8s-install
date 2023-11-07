@@ -5,7 +5,7 @@ metadata:
 spec:
   groups:
   - {{ org_name }}
-  request: {{ hostvars[groups['connect'][0]].csr_result.csr | b64encode | trim }}
+  request: {{ hostvars[groups['connect'][0]].client_csr.stdout | b64encode | trim }}
   signerName: kubernetes.io/kube-apiserver-client
   usages:
   - client auth

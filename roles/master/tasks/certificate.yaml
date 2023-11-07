@@ -3,34 +3,50 @@
   ansible.builtin.pip:
     name: cryptography
 
-# - name: Generate an OpenSSL Certificate for user
-#   become: true
-#   community.crypto.x509_certificate_pipe:
-#     provider: ownca
-#     csr_content: "{{ hostvars[groups['connect'][0]].csr_result.csr }}"
-#     ownca_path: /etc/kubernetes/pki/ca.crt
-#     ownca_privatekey_path: /etc/kubernetes/pki/ca.key
-#   register: crt_result
-#   when: not hostvars[groups['connect'][0]].stat_result.stat.exists
-
-# - name: Read ca.crt file for connect nodes
-#   become: true
-#   ansible.builtin.command: cat /etc/kubernetes/pki/ca.crt
-#   changed_when: false
-#   register: ca_file
-#   when: inventory_hostname == groups['masters'][0]
-
-
+- name: Read ca.crt file for connect nodes
+  become: true
+  ansible.builtin.command: cat /etc/kubernetes/pki/ca.crt
+  changed_when: false
+  register: ca_file
+  when: inventory_hostname == groups['masters'][0]
 
 - name: Make csr.yaml file
   ansible.builtin.template:
-    src: csr.yaml.j2
-    dest: "/home/{{ ansible_user }}/.kube/client.csr"
-  when: hostvars[groups['connect'][0]].csr_result is defined ###  todo: better when
+    src: roles/master/templates/csr.yaml.j2
+    dest: "/home/{{ ansible_user }}/.kube/client-csr.yaml"
 
-#tp be done
-#k apply -f csr.yaml
-#k certificate approve fancyname
-# kubectl get csr fancyname --output=jsonpath="{.status}" | jq .
-# get certificate and give it to client
-- meta: end_play
+- name: Create a k8s client csr 
+  kubernetes.core.k8s:
+    state: present
+    src: "/home/{{ ansible_user }}/.kube/client-csr.yaml"
+
+- name: Chcek if csr is approved
+  tags: t1
+  ansible.builtin.command: "kubectl get csr {{ common_name }} --output=jsonpath='{.status.conditions[0].type}'"
+  changed_when: false
+  register: client_certificate_status
+
+- name: Create a k8s namespace
+  kubernetes.core.k8s:
+    name: "{{ namespace_name }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+
+
+- name: Approve certificate and get client certificate
+  tags: t1
+  block:
+  - name: Approve certificate
+    ansible.builtin.command: "kubectl certificate approve {{ common_name }}"
+    #changed_when: false
+  - name: Get client certificate
+    ansible.builtin.command: "kubectl get csr {{ common_name }} --output=jsonpath='{.status.certificate}'"
+    register: client_certificate
+    changed_when: false
+  - name: Create developers role
+    ansible.builtin.command: "kubectl create role {{ org_name }}_role --verb={{ verbs | join(',') }} --resource={{ resources | join(',')}} --namespace={{ namespace_name }}"
+  - name: Create developers rolebinding
+    ansible.builtin.command: "kubectl create rolebinding {{ org_name }}_binding --role={{ org_name }}_role --group={{ org_name }} -n {{ namespace_name }}"
+  when: client_certificate_status.stdout != "Approved"
+

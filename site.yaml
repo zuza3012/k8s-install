@@ -5,29 +5,40 @@
     - ssh
     - k8s_install
   tasks:
-    - ansible.builtin.include: roles/connect/tasks/setup_certificate.yaml
+    - name: Setup certificate for connect
+      ansible.builtin.include_tasks:
+        file: roles/connect/tasks/setup_certificate.yaml
 
+- name: Ssh and common
+  hosts: ['masters', 'workers']
+  gather_facts: true
+  roles:
+    - ssh
+    - common
 
 - name: Apply configuration for masters
   hosts: masters
   gather_facts: true
   roles:
-    - ssh
-    - common
     - master
+  tasks:
+    - name: Setup certificate for connect
+      ansible.builtin.include_tasks:
+        file: roles/master/tasks/certificate.yaml
+      when: not hostvars[groups['connect'][0]].csr.stat.exists
 
 - name: Apply configuration for workers
   hosts: workers
   gather_facts: false
   roles:
-    - ssh
-    - common
     - worker
 
 - name: Apply configuration for connect kubeconfig
   hosts: connect
   gather_facts: true
   tasks:
-    - ansible.builtin.include: roles/connect/tasks/kubeconfig.yaml
-
+    - name: Kubeconfig
+      ansible.builtin.include_tasks:
+        file: roles/connect/tasks/kubeconfig.yaml
+      when: not csr.stat.exists
 

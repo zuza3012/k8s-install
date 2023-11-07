@@ -244,6 +244,25 @@ resource "openstack_networking_secgroup_rule_v2" "worker-calico-egress" {
 
 ####################### worker egress #######################
 
+####################### connect #######################
+# # add open ports for workers
+# resource "openstack_networking_secgroup_v2" "connect" {
+#   name        = "connect"
+#   description = "ktest rules"
+# }
+
+# resource "openstack_networking_secgroup_rule_v2" "connect-allow-6443" {
+#   direction         = "egress"
+#   ethertype         = "IPv4"
+#   protocol          = "tcp"
+#   port_range_min    = 6443
+#   port_range_max    = 6443
+#   remote_ip_prefix  = openstack_networking_subnet_v2.ktest.cidr
+#   security_group_id = openstack_networking_secgroup_v2.connect.id
+# }
+
+# ####################### end of connect #######################
+
 ####################### end of worker egress #######################
 
 resource "openstack_networking_secgroup_v2" "icmp_allow" {
