@@ -1,11 +1,12 @@
 configure_firewall: false # set to false fo terraform (network security groups instead)
 token: abcdef.0123456789abcdef
 #organization_name: fancy
-context_name: fancy
+
 
 rpi: false
 common_name: zuzanna
 org_name: developers
+context_name: fancy
 namespace_name: fancy
 resources: ['pods', 'deployments', 'secrets', 'pods/exec','pods/attach']
-verbs: ['get','list','create','watch']
+verbs: ['get','list','create','watch', 'delete', 'patch']
