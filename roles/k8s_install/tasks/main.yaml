@@ -31,7 +31,7 @@
   vars:
     pkgs: 
       - kubectl
-      - "{{ 'kubelet' if inventory_hostname is in groups['workers'] }}"
+      - "{{ 'kubelet' if 'connect' not in group_names  }}"
       - "{{ 'kubeadm' if 'connect' not in group_names }}"
   become: true
   ansible.builtin.apt:

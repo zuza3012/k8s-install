@@ -1,12 +1,13 @@
-- name: Copy admin.conf for kubectl
-  become: true
-  ansible.builtin.copy:
-    remote_src: true
-    content: "{{ hostvars[groups['masters'][0]].admin_conf.stdout }}"
-    dest: "/home/{{ ansible_user }}/.kube/config"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0600'
+# for security reasons it should not be copied from master to worker nodes
+# - name: Copy admin.conf for kubectl
+#   become: true
+#   ansible.builtin.copy:
+#     remote_src: true
+#     content: "{{ hostvars[groups['masters'][0]].admin_conf.stdout }}"
+#     dest: "/home/{{ ansible_user }}/.kube/config"
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+#     mode: '0600'
 
 - name: Check if /etc/kubernetes/pki is empty before join
   ansible.builtin.find:
