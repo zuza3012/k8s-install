@@ -9,7 +9,7 @@
 
 - name: Create /etc/apt/keyrings directory
   become: true
-  file:
+  ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     mode: '0755'
@@ -23,7 +23,7 @@
   block:
     - name: Add signing key for Docker
       ansible.builtin.get_url:
-        url: "https://download.docker.com/linux/{{ os }}/gpg" 
+        url: "https://download.docker.com/linux/{{ os }}/gpg"
         dest: /etc/apt/keyrings/docker.asc
         mode: '0644'
         force: true
@@ -40,8 +40,6 @@
     name: containerd.io
     state: present
 
-#- meta: end_play
-
 - name: Create continerd.conf
   become: true
   ansible.builtin.copy:
@@ -50,7 +48,6 @@
       overlay
       br_netfilter
     mode: '0644'
-
 
 - name: Start and enable containerd
   become: true

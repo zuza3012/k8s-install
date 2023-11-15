@@ -21,7 +21,7 @@
 #   args:
 #     executable: /bin/bash
 #   changed_when: false
-# TODO check if swap is permanatly disabled on ubuntu 
+# TODO check if swap is permanatly disabled on ubuntu
 # sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /home/ubuntu/fstab1
 
 - name: Stop and disable swap permanently
@@ -77,30 +77,27 @@
 
 
 - name: Fact for /boot/cmdline.txt
+  when: rpi
   block:
     - name: Set fact for /boot/cmdline.txt rpi
       vars:
         cmdl: "{{ cmdline['content'] | b64decode | split }}"
       ansible.builtin.set_fact:
-        append: "{{ append | default([]) + [item] }}" 
+        append: "{{ append | default([]) + [item] }}"
       when: cmdl is not contains(item)
       loop:
         - cgroup_enable=memory
         - cgroup_enable=cpuset
-        
     - name: Update /boot/cmdline.txt
       become: true
       vars:
-        file_content: "{{ cmdline['content'] | b64decode | trim }}" 
+        file_content: "{{ cmdline['content'] | b64decode | trim }}"
       ansible.builtin.copy:
         content: "{{ file_content }} {{ append | join(' ') }}\n"
         dest: /boot/cmdline.txt
       when: append is defined and rpi
       notify:
         - Reboot machine
-  when: rpi
-
-
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers

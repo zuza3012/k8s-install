@@ -29,7 +29,7 @@
 
 - name: Install k8s packages
   vars:
-    pkgs: 
+    pkgs:
       - kubectl
       - "{{ 'kubelet' if 'connect' not in group_names  }}"
       - "{{ 'kubeadm' if 'connect' not in group_names }}"
@@ -38,9 +38,8 @@
     pkg:
       - "{{ item }}"
     state: present
-  loop: "{{ pkgs |select()}}"
+  loop: "{{ pkgs |select() }}"
 
-    
 - name: Add kubectl alias
   ansible.builtin.lineinfile:
     path: "/home/{{ ansible_user }}/.bashrc"

@@ -14,11 +14,13 @@
   ansible.builtin.template:
     src: roles/master/templates/csr.yaml.j2
     dest: "/home/{{ ansible_user }}/.kube/client-csr.yaml"
+    mode: '0640'
 
-- name: Create a k8s client csr 
+- name: Create a k8s client csr
   kubernetes.core.k8s:
     state: present
     src: "/home/{{ ansible_user }}/.kube/client-csr.yaml"
+    mode: '0640'
 
 - name: Chcek if csr is approved
   tags: t1
@@ -35,18 +37,17 @@
 
 
 - name: Approve certificate and get client certificate
-  tags: t1
-  block:
-  - name: Approve certificate
-    ansible.builtin.command: "kubectl certificate approve {{ common_name }}"
-    #changed_when: false
-  - name: Get client certificate
-    ansible.builtin.command: "kubectl get csr {{ common_name }} --output=jsonpath='{.status.certificate}'"
-    register: client_certificate
-    changed_when: false
-  - name: Create developers role
-    ansible.builtin.command: "kubectl create role {{ org_name }}_role --verb={{ verbs | join(',') }} --resource={{ resources | join(',')}} --namespace={{ namespace_name }}"
-  - name: Create developers rolebinding
-    ansible.builtin.command: "kubectl create rolebinding {{ org_name }}_binding --role={{ org_name }}_role --group={{ org_name }} -n {{ namespace_name }}"
   when: client_certificate_status.stdout != "Approved"
+  block:
+    - name: Approve certificate
+      ansible.builtin.command: "kubectl certificate approve {{ common_name }}"
+      #changed_when: false
+    - name: Get client certificate
+      ansible.builtin.command: "kubectl get csr {{ common_name }} --output=jsonpath='{.status.certificate}'"
+      register: client_certificate
+      changed_when: false
+    - name: Create developers role
+      ansible.builtin.command: "kubectl create role {{ org_name }}_role --verb={{ verbs | join(',') }} --resource={{ resources | join(',') }} --namespace={{ namespace_name }}"
+    - name: Create developers rolebinding
+      ansible.builtin.command: "kubectl create rolebinding {{ org_name }}_binding --role={{ org_name }}_role --group={{ org_name }} -n {{ namespace_name }}"
 
