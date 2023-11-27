@@ -1,0 +1,87 @@
+- name: Install requirements for containerd installation
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - ca-certificates
+      - curl
+      - gnupg
+    state: present
+
+- name: Create /etc/apt/keyrings directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Setup Docker
+  become: true
+  vars:
+    os: "{{ 'raspbian' if rpi else 'ubuntu' }}"
+    arch: "{{ 'armhf' if rpi else 'amd64' }}"
+    os_type: "{{ 'bullseye' if rpi else 'jammy' }}"
+  block:
+    - name: Add signing key for Docker
+      ansible.builtin.get_url:
+        url: "https://download.docker.com/linux/{{ os }}/gpg"
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+        force: true
+    - name: Add Docker Repository
+      ansible.builtin.apt_repository: #
+        repo: "deb [arch={{ arch }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/{{ os }} {{ os_type }} stable"
+        state: present
+        update_cache: true
+
+
+- name: Install docker stuff
+  become: true
+  ansible.builtin.apt:
+    name: ['docker-ce', 'docker-compose','containerd.io']
+    state: present
+
+
+- name: Start and enable containerd
+  become: true
+  ansible.builtin.service:
+    name: containerd
+    state: started
+    enabled: true
+
+
+- name: Ensure group "docker" exists
+  become: true
+  ansible.builtin.group:
+    name: docker
+    state: present
+
+- name: Adding existing user '{{ ansible_user }}' to group docker
+  become: true
+  ansible.builtin.user:
+    name: '{{ ansible_user }}'
+    groups: docker
+    append: yes
+
+
+- name: Create a data container
+  community.docker.docker_container:
+    name: simple_registry
+    image: registry
+    published_ports:
+      - 5000:5000
+
+# - name: Tag and push to docker hub
+#   community.docker.docker_image:
+#     name: pacur/centos-7:56
+#     repository: dcoppenhagan/myimage:7.56
+#     push: true
+#     source: local
+
+# - name: Build an image and push it to a private repo
+#   community.docker.docker_image:
+#     build:
+#       path: ./sinatra
+#     name: registry.ansible.com/chouseknecht/sinatra
+#     tag: v1
+#     push: true
+#     source: build

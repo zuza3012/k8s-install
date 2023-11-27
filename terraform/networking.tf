@@ -42,13 +42,45 @@ resource "openstack_networking_floatingip_v2" "connect" {
   pool = data.openstack_networking_network_v2.ext_network.name
   description = "ktest"
 }
+# float ips for registry for debugging only
+resource "openstack_networking_floatingip_v2" "registry" {
+  pool = data.openstack_networking_network_v2.ext_network.name
+  description = "ktest"
+}
+
 # security group for SSH connection with outside world (for debugging)
 # change it in the future!
+
+resource "openstack_networking_secgroup_v2" "registry" {
+  name        = "ktest_registry"
+  description = "Enable port 5000"
+}
+
+resource "openstack_networking_secgroup_rule_v2" "registry_ingress" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 5000
+  port_range_max    = 5000
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = openstack_networking_secgroup_v2.registry.id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "registry_egress" {
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 5000
+  port_range_max    = 5000
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = openstack_networking_secgroup_v2.registry.id
+}
 
 resource "openstack_networking_secgroup_v2" "sec_ssh_grp" {
   name        = "ktest_ssh"
   description = "Enable ssh"
 }
+
 
 resource "openstack_networking_secgroup_rule_v2" "sec_ssh_grp_rule" {
   direction         = "ingress"

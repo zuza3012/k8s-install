@@ -1,3 +1,13 @@
+
+- name: Registry setup
+  tags: reg
+  hosts: ['registry'] # wywalic connect stad
+  gather_facts: true
+  roles:
+    - ssh
+    - registry
+
+
 - name: Apply basic configuration for connect node
   hosts: connect
   gather_facts: false

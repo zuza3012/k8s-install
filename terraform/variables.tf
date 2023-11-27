@@ -36,7 +36,7 @@ variable "master_count" {
 variable "inst_count" {
   description = "Number of instances"
   type        = number
-  default     = 3
+  default     = 2
 }
 
 variable "terraform_user" {

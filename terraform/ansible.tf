@@ -22,6 +22,10 @@ resource "ansible_group" "masters" {
   name     = "masters"
 }
 
+resource "ansible_group" "registry" {
+  name     = "masters"
+}
+
 resource "ansible_host" "connect" {
   name   = openstack_compute_instance_v2.connect.name
   groups = [ansible_group.connect.name]
@@ -31,6 +35,18 @@ resource "ansible_host" "connect" {
     private_ip = openstack_compute_instance_v2.connect.network[0].fixed_ip_v4
   }
 }
+
+
+resource "ansible_host" "registry" {
+  name   = openstack_compute_instance_v2.registry.name
+  groups = [ansible_group.registry.name]
+
+  variables = {
+    ansible_host = openstack_compute_floatingip_associate_v2.registry_ip.floating_ip
+    private_ip = openstack_compute_instance_v2.registry.network[0].fixed_ip_v4
+  }
+}
+
 
 resource "ansible_host" "masters" {
   count = var.master_count
