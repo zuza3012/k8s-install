@@ -41,12 +41,12 @@
     state: present
 
 
-- name: Start and enable containerd
-  become: true
-  ansible.builtin.service:
-    name: containerd
-    state: started
-    enabled: true
+# - name: Start and enable containerd
+#   become: true
+#   ansible.builtin.service:
+#     name: containerd
+#     state: started
+#     enabled: true
 
 
 - name: Ensure group "docker" exists
@@ -62,13 +62,22 @@
     groups: docker
     append: yes
 
+# restart docker
+# to be done better
+# - name: Create a data container
+#   community.docker.docker_container:
+#     recreate: true
+#     name: simple_registry
+#     image: registry
+#     published_ports:
+#       - 5000:5000
 
-- name: Create a data container
-  community.docker.docker_container:
-    name: simple_registry
-    image: registry
-    published_ports:
-      - 5000:5000
+
+- name: Creates directory for building images
+  ansible.builtin.file:
+    path: '/home/{{ ansible_user }}/images'
+    state: directory
+
 
 # - name: Tag and push to docker hub
 #   community.docker.docker_image:

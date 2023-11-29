@@ -1,7 +1,7 @@
 
 - name: Registry setup
   tags: reg
-  hosts: ['registry'] # wywalic connect stad
+  hosts: ['registry', 'connect'] # wywalic connect stad
   gather_facts: true
   roles:
     - ssh
